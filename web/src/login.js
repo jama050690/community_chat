@@ -88,7 +88,7 @@ form.addEventListener("submit", async (e) => {
     // Vaqtinchalik avatarni o'chirish (endi serverdan kelgan avatar bor)
     localStorage.removeItem("tempAvatar");
     alert(`Xush kelibsiz, ${data.user.username}!`);
-    window.location.href = "/index.html";
+    window.location.href = `${import.meta.env.BASE_URL}index`
   } catch (err) {
     console.error(err);
     alert("Server bilan bog'lanishda xatolik yuz berdi!");

@@ -78,7 +78,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       alert(`Xush kelibsiz, ${result.user.username}!`);
-      window.location.href = "/login.html";
+      window.location.href = `${import.meta.env.BASE_URL}login`;
     } catch (err) {
       console.error(err);
       alert("Server bilan bog'lanishda xatolik yuz berdi!");

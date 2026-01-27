@@ -12,14 +12,14 @@ const messagesUL = document.getElementById("messages");
 const messageInput = document.getElementById("message");
 const sendBtn = document.getElementById("sendBtn");
 
-const BASE_API = "/api/com_chat";
+const BASE_URL = "/api/com_chat";
 
 let typingTimeout = null;
 
 document.addEventListener("DOMContentLoaded", async () => {
   // LOGIN CHECK
   if (!user) {
-    window.location.href = "/login.html";
+    window.location.href = `${import.meta.env.BASE_URL}login`;
     return;
   }
 
@@ -31,13 +31,13 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   logoutBtn?.addEventListener("click", () => {
     localStorage.clear();
-    window.location.href = "/login.html";
+    window.location.href = `${import.meta.env.BASE_URL}login`;
   });
 
   // =========================
   // SOCKET.IO CHAT
   // =========================
-  const server = io(BASE_API);
+  const server = io(BASE_URL);
 
   const sendMessage = () => {
     const msg = messageInput.value.trim();
@@ -128,7 +128,7 @@ function renderMsg(msg) {
 
 function fetchMessageHistory() {
   // messagesUL
-  const messages = fetch(`${BASE_API}/api/messages`)
+  const messages = fetch(`${BASE_URL}/api/messages`)
     .then((res) => res.json())
     .then((data) => {
       console.log(data);
