@@ -259,8 +259,9 @@ app.get("/api/me", (req, res) => {
   }
 });
 
+const prod_host = "0.0.0.0";
 // START SERVER
-httpServer.listen(PORT, () => {
-  console.log(`Backend running at http://localhost:${PORT}`);
+httpServer.listen(PORT, prod_host, () => {
+  console.log(`Backend running at http://${prod_host}:${PORT}`);
   console.log(`Socket.IO server is also running on port ${PORT}`);
 });
