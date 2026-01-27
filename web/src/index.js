@@ -42,6 +42,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     withCredentials: true,
   });
 
+  console.log(`test socket url: ${import.meta.env.VITE_SOCKET_URL}`);
+
   const sendMessage = () => {
     const msg = messageInput.value.trim();
     if (!msg) return;
