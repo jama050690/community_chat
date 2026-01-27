@@ -1,58 +1,104 @@
 <!doctype html>
 <html lang="en">
-	<head>
-		<meta charset="UTF-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<title>Chat App</title>
-		<script src="https://cdn.tailwindcss.com"></script>
-	</head>
-	<body class="bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 min-h-screen flex items-center justify-center p-4">
-		<div class="w-full max-w-2xl bg-white rounded-2xl shadow-2xl overflow-hidden">
-			<!-- Header -->
-			<div class="bg-gradient-to-r from-indigo-600 to-purple-600 px-6 py-4 flex items-center justify-between">
-				<div class="flex items-center gap-3">
-					<img id="userAvatar" src="https://via.placeholder.com/40" alt="Avatar" class="w-10 h-10 rounded-full border-2 border-white shadow-md object-cover">
-					<div>
-						<h1 class="text-white font-bold text-lg">Chat</h1>
-						<p class="text-indigo-200 text-sm">Salom, <span id="whoAmI" class="font-medium text-white">User</span></p>
-					</div>
-				</div>
-				<button id="logout" class="bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2">
-					<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
-					</svg>
-					Chiqish
-				</button>
-			</div>
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chat App</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body
+    class="bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 min-h-screen flex items-center justify-center p-4"
+  >
+    <div
+      class="w-full max-w-2xl bg-white rounded-2xl shadow-2xl overflow-hidden"
+    >
+      <!-- Header -->
+      <div
+        class="bg-gradient-to-r from-indigo-600 to-purple-600 px-6 py-4 flex items-center justify-between"
+      >
+        <div class="flex items-center gap-3">
+          <img
+            id="userAvatar"
+            src="/images/no_profile_picture.webp"
+            alt="Avatar"
+            class="w-10 h-10 rounded-full border-2 border-white shadow-md object-cover"
+          />
+          <div>
+            <h1 class="text-white font-bold text-lg">Chat</h1>
+            <p class="text-indigo-200 text-sm">
+              Salom,
+              <span id="whoAmI" class="font-medium text-white">User</span>
+            </p>
+          </div>
+        </div>
+        <button
+          id="logout"
+          class="bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2"
+        >
+          <svg
+            class="w-4 h-4"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+            ></path>
+          </svg>
+          Chiqish
+        </button>
+      </div>
 
-			<!-- Typing indicator -->
-			<div id="typing" class="px-6 py-2 text-sm text-gray-500 italic min-h-[32px]"></div>
+      <!-- Typing indicator -->
+      <div
+        id="typing"
+        class="px-6 py-2 text-sm text-gray-500 italic min-h-[32px]"
+      ></div>
 
-			<!-- Messages container -->
-			<div id="messages" class="px-6 py-4 h-96 overflow-y-auto space-y-3 bg-gray-50">
-				<!-- Messages will be added here -->
-			</div>
+      <!-- Messages container -->
+      <div
+        id="messages"
+        class="px-6 py-4 h-96 overflow-y-auto space-y-3 bg-gray-50"
+      >
+        <!-- Messages will be added here -->
+      </div>
 
-			<!-- Input area -->
-			<div class="px-6 py-4 bg-white border-t border-gray-200">
-				<div class="flex gap-3">
-					<input
-						type="text"
-						id="message"
-						placeholder="Xabar yozing..."
-						class="flex-1 px-4 py-3 bg-gray-100 rounded-xl border-0 focus:ring-2 focus:ring-indigo-500 focus:bg-white transition-all outline-none"
-					>
-					<button id="sendBtn" class="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white px-6 py-3 rounded-xl font-medium transition-all flex items-center gap-2 shadow-lg hover:shadow-xl">
-						<span>Yuborish</span>
-						<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
-						</svg>
-					</button>
-				</div>
-			</div>
-		</div>
+      <!-- Input area -->
+      <div class="px-6 py-4 bg-white border-t border-gray-200">
+        <div class="flex gap-3">
+          <input
+            type="text"
+            id="message"
+            placeholder="Xabar yozing..."
+            class="flex-1 px-4 py-3 bg-gray-100 rounded-xl border-0 focus:ring-2 focus:ring-indigo-500 focus:bg-white transition-all outline-none"
+          />
+          <button
+            id="sendBtn"
+            class="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white px-6 py-3 rounded-xl font-medium transition-all flex items-center gap-2 shadow-lg hover:shadow-xl"
+          >
+            <span>Yuborish</span>
+            <svg
+              class="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
+              ></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
 
-		<script type="module" src="/src/index.js"></script>
-	</body>
+    <script type="module" src="/src/index.js"></script>
+  </body>
 </html>

@@ -31,9 +31,16 @@ const browsers = [];
 io.on("connection", (browser) => {
   browsers.push(browser);
 
-  browser.on("NEW_MESSAGE", (message) => {
+  browser.on("NEW_MESSAGE", async (data) => {
+    // Xabarni databasega saqlash
+    await pool.query(
+      `INSERT INTO ${MESSAGES_TABLE} (username, message, avatar) VALUES ($1, $2, $3)`,
+      [data.user, data.message, data.avatar],
+    );
+
+    // Hammaga yuborish
     for (const b of browsers) {
-      b.emit("NEW_MESSAGE", message);
+      b.emit("NEW_MESSAGE", data);
     }
   });
 
@@ -102,7 +109,7 @@ const pool = new Pool({
   database: process.env.DB_NAME,
 });
 
-const USER_TABLE = "users_new";
+const USER_TABLE = "users";
 
 // INIT DB
 async function initDb() {
@@ -114,58 +121,40 @@ async function initDb() {
       password_hash TEXT NOT NULL,
       age INT NOT NULL,
       gender BOOLEAN NOT NULL,
-      is_premium BOOLEAN DEFAULT FALSE
+      avatar TEXT
     );
+  `);
+  // Add avatar column if it doesn't exist (for existing tables)
+  await pool.query(`
+    ALTER TABLE ${USER_TABLE} ADD COLUMN IF NOT EXISTS avatar TEXT;
   `);
   console.log(`${new Date().toISOString()} Database ishga tushirildi`);
 }
 initDb();
 
-// Posts
-app.get("/api/posts", authMiddleware, async (req, res) => {
-  console.log("USER FROM TOKEN:", req.user);
-
-  const isPremium = req.user.is_premium;
-  const limit = req.user.is_premium ? 4 : 2;
-  const sqlPremiumCheck = isPremium ? "1=1" : "is_premium = false";
-
+// Messages - barcha xabarlarni olish
+app.get("/api/messages", async (req, res) => {
   const { rows } = await pool.query(
-    `SELECT * FROM posts WHERE ${sqlPremiumCheck} ORDER BY created_at DESC LIMIT $1`,
-    [limit],
+    `SELECT * FROM ${MESSAGES_TABLE} ORDER BY created_at ASC`,
   );
-
   res.json(rows);
 });
-const POSTS_TABLE = "posts";
+const MESSAGES_TABLE = "messages";
 
-async function initPostsTable() {
-  // Table yaratish
+async function initMessagesTable() {
   await pool.query(`
-    CREATE TABLE IF NOT EXISTS ${POSTS_TABLE} (
+    CREATE TABLE IF NOT EXISTS ${MESSAGES_TABLE} (
       id SERIAL PRIMARY KEY,
-      title VARCHAR(100) UNIQUE NOT NULL,
-      description TEXT,
-      is_premium BOOLEAN DEFAULT FALSE,
-      image TEXT,
+      username VARCHAR(25) NOT NULL,
+      message TEXT NOT NULL,
+      avatar TEXT,
       created_at TIMESTAMP DEFAULT NOW()
     );
   `);
-  console.log("Posts table tayyor");
-
-  // Test postlarni qo'shish
-  await pool.query(`
-    INSERT INTO ${POSTS_TABLE} (title, description, image, is_premium)
-    VALUES
-      ('Post 1', 'Description 1', '/images/post1.jpg', false),
-      ('Post 2', 'Description 2', '/images/post2.jpg', false),
-      ('Post 3', 'Description 3', '/images/post3.png', true),
-      ('Post 4', 'Description 4', '/images/post4.jpg', true)
-    ON CONFLICT DO NOTHING;  -- agar oldin qo'shilgan bo'lsa, xato bermaslik uchun
-  `);
-  console.log("Test postlar qo'shildi");
+  console.log("Messages table tayyor");
 }
 
-initPostsTable();
+initMessagesTable();
 
 /**
  * User Sign up
