@@ -1,5 +1,7 @@
 import "./style.css";
-const BASE_URL = "/api/com_chat";
+const BASE_URL = import.meta.env.VITE_BASE_URL; //host
+const BASE_PATH = import.meta.env.VITE_BASE_PATH; // portdan keyin url : production uchun muhim
+
 document.addEventListener("DOMContentLoaded", () => {
   const form = document.getElementById("signupForm");
   const togglePassword = document.getElementById("togglePassword");
@@ -78,7 +80,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       alert(`Xush kelibsiz, ${result.user.username}!`);
-      window.location.href = `${import.meta.env.BASE_URL}login`;
+      window.location.href = `${BASE_PATH}login`;
     } catch (err) {
       console.error(err);
       alert("Server bilan bog'lanishda xatolik yuz berdi!");

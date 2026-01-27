@@ -4,7 +4,9 @@ const password = document.getElementById("password");
 const toggle = document.getElementById("togglePassword");
 const avatarIconElement = document.getElementById("avatarIcon");
 const profilePicInput = document.getElementById("profilePic");
-const BASE_URL = "/api/com_chat";
+// const BASE_URL = "/api/com_chat";
+const BASE_URL = import.meta.env.VITE_BASE_URL; //host
+const BASE_PATH = import.meta.env.VITE_BASE_PATH; // portdan keyin url : production uchun muhim
 // Rasmni preview qilish va localStorage ga saqlash
 if (profilePicInput && avatar && avatarIconElement) {
   profilePicInput.addEventListener("change", (e) => {
@@ -87,9 +89,9 @@ form.addEventListener("submit", async (e) => {
     }
     // Vaqtinchalik avatarni o'chirish (endi serverdan kelgan avatar bor)
     localStorage.removeItem("tempAvatar");
-    console.log(`redirecting to: ${import.meta.env.BASE_URL}index.html`);
+    console.log(`redirecting to: ${BASE_PATH}index.html`);
     alert(`Xush kelibsiz, ${data.user.username}!`);
-    window.location.href = `${import.meta.env.BASE_URL}index.html`;
+    window.location.href = `${BASE_PATH}index.html`;
   } catch (err) {
     console.error(err);
     alert("Server bilan bog'lanishda xatolik yuz berdi!");

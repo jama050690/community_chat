@@ -12,15 +12,17 @@ const messagesUL = document.getElementById("messages");
 const messageInput = document.getElementById("message");
 const sendBtn = document.getElementById("sendBtn");
 
-const BASE_URL = "/api/com_chat";
+// const BASE_URL = "/api/com_chat";
+const BASE_URL = import.meta.env.VITE_BASE_URL; //host
+const BASE_PATH = import.meta.env.VITE_BASE_PATH; // portdan keyin url : production uchun muhim
 
 let typingTimeout = null;
 
 document.addEventListener("DOMContentLoaded", async () => {
   // LOGIN CHECK
   if (!user && !window.location.pathname.includes("login")) {
-    console.log("redirecting to: " + `${import.meta.env.BASE_URL}login.html`);
-    window.location.href = `${import.meta.env.BASE_URL}login.html`;
+    console.log("redirecting to: " + `${BASE_PATH}login.html`);
+    window.location.href = `${BASE_PATH}login.html`;
     return;
   }
 
@@ -32,18 +34,18 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   logoutBtn?.addEventListener("click", () => {
     localStorage.clear();
-    window.location.href = `${import.meta.env.BASE_URL}login.html`;
+    window.location.href = `${BASE_PATH}login.html`;
   });
 
   // =========================
   // SOCKET.IO CHAT
   // =========================
-  const server = io("/", {
-    path: import.meta.env.VITE_SOCKET_PATH,
+
+  const server = io(import.meta.env.VITE_BASE_URL, {
+    path: import.meta.env.VITE_SOCKET_URL,
     withCredentials: true,
   });
-
-  console.log(`test socket url: ${import.meta.env.VITE_SOCKET_PATH}`);
+  console.log(`test socket url: ${BASE_URL}${import.meta.env.VITE_SOCKET_URL}`);
 
   const sendMessage = () => {
     const msg = messageInput.value.trim();
