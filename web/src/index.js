@@ -38,7 +38,9 @@ document.addEventListener("DOMContentLoaded", async () => {
   // =========================
   // SOCKET.IO CHAT
   // =========================
-  const server = io(BASE_URL);
+  const server = io(import.meta.env.VITE_SOCKET_URL, {
+    withCredentials: true,
+  });
 
   const sendMessage = () => {
     const msg = messageInput.value.trim();
