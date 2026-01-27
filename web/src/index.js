@@ -12,6 +12,8 @@ const messagesUL = document.getElementById("messages");
 const messageInput = document.getElementById("message");
 const sendBtn = document.getElementById("sendBtn");
 
+const BASE_API = "http://localhost:3000";
+
 let typingTimeout = null;
 
 document.addEventListener("DOMContentLoaded", async () => {
@@ -23,11 +25,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   if (whoAmI) whoAmI.textContent = user;
 
-  if (userAvatar) {
-    userAvatar.src =
-      avatar && avatar !== "null" && avatar !== "undefined"
-        ? avatar
-        : "https://via.placeholder.com/40";
+  if (userAvatar && avatar) {
+    userAvatar.src = avatar;
   }
 
   logoutBtn?.addEventListener("click", () => {
@@ -38,7 +37,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   // =========================
   // SOCKET.IO CHAT
   // =========================
-  const server = io("http://localhost:3000");
+  const server = io(BASE_API);
 
   const sendMessage = () => {
     const msg = messageInput.value.trim();
@@ -60,49 +59,14 @@ document.addEventListener("DOMContentLoaded", async () => {
   sendBtn?.addEventListener("click", sendMessage);
 
   server.on("NEW_MESSAGE", (data) => {
-    const isOwnMessage = data.user === user;
-
-    const messageDiv = document.createElement("div");
-    messageDiv.className = `flex ${isOwnMessage ? "justify-end" : "justify-start"}`;
-
-    const bubbleWrapper = document.createElement("div");
-    bubbleWrapper.className = `flex items-end gap-2 max-w-[80%] ${isOwnMessage ? "flex-row-reverse" : ""}`;
-
-    // Avatar
-    const avatarImg = document.createElement("img");
-    avatarImg.src = data.avatar || "https://via.placeholder.com/32";
-    avatarImg.className = "w-8 h-8 rounded-full object-cover flex-shrink-0";
-
-    // Message bubble
-    const bubble = document.createElement("div");
-    bubble.className = `px-4 py-2 rounded-2xl ${
-      isOwnMessage
-        ? "bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-br-md"
-        : "bg-white text-gray-800 shadow-md rounded-bl-md"
-    }`;
-
-    // Username
-    const username = document.createElement("p");
-    username.className = `text-xs font-medium mb-1 ${isOwnMessage ? "text-indigo-200" : "text-indigo-600"}`;
-    username.textContent = data.user;
-
-    // Message text
-    const text = document.createElement("p");
-    text.className = "text-sm";
-    text.textContent = data.message;
-
-    bubble.appendChild(username);
-    bubble.appendChild(text);
-    bubbleWrapper.appendChild(avatarImg);
-    bubbleWrapper.appendChild(bubble);
-    messageDiv.appendChild(bubbleWrapper);
-
+    data.username = data.user;
+    renderMsg(data);
     typing.textContent = "";
-    messagesUL.appendChild(messageDiv);
-    messagesUL.scrollTop = messagesUL.scrollHeight;
   });
 
   server.on("TYPING", (typingUser) => {
+    console.log(typingUser, user, typingUser !== user);
+
     if (typingUser !== user) {
       typing.textContent = `${typingUser} yozmoqda...`;
       clearTimeout(typingTimeout);
@@ -111,4 +75,64 @@ document.addEventListener("DOMContentLoaded", async () => {
       }, 1000);
     }
   });
+
+  fetchMessageHistory();
 });
+
+/**
+ * Message ni ekranga chiqarish
+ * @param {} msg
+ */
+function renderMsg(msg) {
+  const isOwnMessage = msg.username === user;
+
+  const messageDiv = document.createElement("div");
+  messageDiv.className = `flex ${isOwnMessage ? "justify-end" : "justify-start"}`;
+
+  const bubbleWrapper = document.createElement("div");
+  bubbleWrapper.className = `flex items-end gap-2 max-w-[80%] ${isOwnMessage ? "flex-row-reverse" : ""}`;
+
+  // Avatar
+  const avatarImg = document.createElement("img");
+  avatarImg.src = msg.avatar || "/images/no_profile_picture.webp";
+  avatarImg.className = "w-8 h-8 rounded-full object-cover flex-shrink-0";
+
+  // Message bubble
+  const bubble = document.createElement("div");
+  bubble.className = `px-4 py-2 rounded-2xl ${
+    isOwnMessage
+      ? "bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-br-md"
+      : "bg-white text-gray-800 shadow-md rounded-bl-md"
+  }`;
+
+  // Username
+  const username = document.createElement("p");
+  username.className = `text-xs font-medium mb-1 ${isOwnMessage ? "text-indigo-200" : "text-indigo-600"}`;
+  username.textContent = msg.username;
+
+  // Message text
+  const text = document.createElement("p");
+  text.className = "text-sm";
+  text.textContent = msg.message;
+
+  bubble.appendChild(username);
+  bubble.appendChild(text);
+  bubbleWrapper.appendChild(avatarImg);
+  bubbleWrapper.appendChild(bubble);
+  messageDiv.appendChild(bubbleWrapper);
+
+  typing.textContent = "";
+  messagesUL.appendChild(messageDiv);
+  messagesUL.scrollTop = messagesUL.scrollHeight;
+}
+
+function fetchMessageHistory() {
+  // messagesUL
+  const messages = fetch(`${BASE_API}/api/messages`)
+    .then((res) => res.json())
+    .then((data) => {
+      console.log(data);
+      data.forEach((msg) => renderMsg(msg, msg.user));
+    })
+    .catch((err) => console.error(err));
+}

@@ -44,9 +44,9 @@ io.on("connection", (browser) => {
     }
   });
 
-  browser.on("TYPING", () => {
+  browser.on("TYPING", (user) => {
     for (const b of browsers) {
-      b.emit("TYPING");
+      b.emit("TYPING", user);
     }
   });
 
