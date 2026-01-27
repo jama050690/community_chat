@@ -19,6 +19,7 @@ let typingTimeout = null;
 document.addEventListener("DOMContentLoaded", async () => {
   // LOGIN CHECK
   if (!user) {
+    console.log("redirecting to: " + `${import.meta.env.BASE_URL}login`);
     window.location.href = `${import.meta.env.BASE_URL}login`;
     return;
   }
