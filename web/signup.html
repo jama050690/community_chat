@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Register</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+  </head>
+  <body class="sign flex items-center justify-center min-h-screen">
+    <div class="w-full max-w-md p-6 rounded-xl shadow-lg sign-card">
+      <h2 class="text-blue-600 text-2xl font-bold text-center mb-6">SignUp</h2>
+
+      <form id="signupForm" class="flex flex-col gap-4">
+        <!-- USERNAME -->
+        <div class="relative">
+          <input
+            name="username"
+            type="text"
+            placeholder=" "
+            class="peer w-full h-12 px-4 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-200 placeholder-transparent"
+          />
+          <label
+            class="absolute left-4 top-0 -translate-y-1/2 px-1 text-xs text-gray-500 transition-all peer-placeholder-shown:top-1/2 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:text-sm peer-placeholder-shown:text-gray-400 peer-focus:top-0 peer-focus:-translate-y-1/2 peer-focus:text-xs peer-focus:text-blue-600"
+          >
+            Username
+          </label>
+          <i
+            class="fa-solid fa-circle-user absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
+          ></i>
+        </div>
+
+        <!-- EMAIL -->
+        <div class="relative">
+          <input
+            name="email"
+            type="email"
+            placeholder=" "
+            required
+            class="peer w-full h-12 px-4 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 hover:bg-white"
+          />
+
+          <label
+            class="absolute left-4 top-0 -translate-y-1/2 px-1 text-xs text-gray-500 transition-all peer-placeholder-shown:top-1/2 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:text-sm peer-placeholder-shown:text-gray-400 peer-focus:top-0 peer-focus:-translate-y-1/2 peer-focus:text-xs peer-focus:text-blue-600"
+          >
+            Email
+          </label>
+          <i
+            class="fa-solid fa-envelope absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none hover:bg-white"
+          ></i>
+        </div>
+
+        <!-- PASSWORD -->
+        <div class="relative">
+          <input
+            name="password"
+            id="password"
+            type="password"
+            placeholder=" "
+            class="peer w-full h-12 px-4 rounded-xl border border-gray-300 bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 hover:white"
+          />
+
+          <label
+            class="absolute left-4 top-0 -translate-y-1/2 px-1 text-xs text-gray-500 transition-all peer-placeholder-shown:top-1/2 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:text-sm peer-placeholder-shown:text-gray-400 peer-focus:top-0 peer-focus:-translate-y-1/2 peer-focus:text-xs peer-focus:text-blue-600"
+          >
+            Password
+          </label>
+          <i
+            id="togglePassword"
+            class="fa-solid fa-eye absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer text-gray-400 hover:text-gray-600"
+          ></i>
+        </div>
+
+        <!-- AGE -->
+        <div class="relative">
+          <input
+            name="age"
+            type="number"
+            placeholder=" "
+            class="peer w-full h-12 px-4 hover:bg-white rounded-xl border border-gray-300 bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+          <label
+            class="absolute left-4 top-0 -translate-y-1/2 px-1 text-xs text-gray-500 transition-all peer-placeholder-shown:top-1/2 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:text-sm peer-placeholder-shown:text-gray-400 peer-focus:top-0 peer-focus:-translate-y-1/2 peer-focus:text-xs peer-focus:text-blue-600"
+          >
+            Age
+          </label>
+        </div>
+
+        <!-- GENDER -->
+        <div class="flex items-center gap-4">
+          <label class="text-blue-500 font-medium">Gender</label>
+          <label class="flex items-center gap-2 text-gray-500">
+            <input type="radio" name="gender" value="male" class="radio-blue" />
+            Male
+          </label>
+          <label class="flex items-center gap-2 text-gray-500">
+            <input
+              type="radio"
+              name="gender"
+              value="female"
+              class="radio-blue"
+            />
+            Female
+          </label>
+        </div>
+
+        <!-- SUBMIT -->
+        <button
+          type="submit"
+          class="mt-4 h-12 rounded-xl bg-red-600 text-white hover:bg-red-700 transition"
+        >
+          Send
+        </button>
+      </form>
+
+      <!-- SOCIAL LOGIN -->
+      <div class="flex items-center my-6">
+        <span class="flex-1 h-px bg-gray-300"></span>
+        <span class="px-3 text-sm text-gray-400">or sign in with</span>
+        <span class="flex-1 h-px bg-gray-300"></span>
+      </div>
+
+      <div class="flex gap-3 justify-center mb-6">
+        <button
+          class="w-24 h-12 bg-white border border-gray-300 rounded-lg flex items-center justify-center hover:bg-blue-100 transition"
+        >
+          <i class="fa-brands fa-linkedin text-blue-700 text-xl"></i>
+        </button>
+        <button
+          class="w-24 h-12 bg-white border border-gray-300 rounded-lg flex items-center justify-center hover:bg-red-100 transition"
+        >
+          <img
+            class="h-5"
+            src="/images/photo_2025-10-02_11-44-57.jpg"
+            alt="Google"
+          />
+        </button>
+        <button
+          class="w-24 h-12 bg-white border border-gray-300 rounded-lg flex items-center justify-center hover:bg-gray-200 transition"
+        >
+          <i class="fa-brands fa-github text-xl"></i>
+        </button>
+      </div>
+
+      <p class="text-center text-sm text-gray-400">
+        No account?
+        <a href="/login.html" class="text-blue-600 hover:underline">Login</a>
+      </p>
+    </div>
+
+    <!-- JS -->
+    <script type="module" src="src/signup.js"></script>
+  </body>
+</html>

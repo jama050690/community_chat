@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+    <title>Login</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+
+  <body class="min-h-screen bg-slate-950">
+    <div class="flex min-h-screen">
+      <!-- LEFT: LOGIN FORM -->
+      <div
+        class="w-full md:w-1/2 bg-white flex flex-col items-center justify-center px-6"
+      >
+        <div class="flex justify-center mb-6">
+          <div class="flex justify-center mt-3">
+            <label
+              for="profilePic"
+              class="relative w-24 h-24 rounded-full bg-[#4a148c] flex items-center justify-center cursor-pointer overflow-hidden group"
+            >
+              <!-- Default icon / preview -->
+              <img
+                id="avatarPreview"
+                class="hidden w-full h-full object-cover"
+              />
+
+              <svg
+                id="avatarIcon"
+                class="w-14 h-14 text-white group-hover:opacity-70 transition"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+              >
+                <path
+                  d="M12 12c2.7 0 4.5-2.1 4.5-4.8S14.7 2.4 12 2.4
+           7.5 4.5 7.5 7.2 9.3 12 12 12zm0 2.4c-3
+           0-9 1.5-9 4.5V21h18v-2.1c0-3-6-4.5-9-4.5z"
+                />
+              </svg>
+
+              <!-- Hover overlay -->
+              <div
+                class="absolute inset-0 bg-black/40 text-white text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition"
+              >
+                Change
+              </div>
+            </label>
+
+            <!-- Hidden file input -->
+            <input
+              id="profilePic"
+              type="file"
+              accept="image/png, image/jpeg"
+              class="hidden"
+            />
+          </div>
+        </div>
+
+        <div class="w-full mt-3 max-w-md">
+          <h2 class="text-2xl font-bold text-center mb-2">Login</h2>
+
+          <form id="loginForm" class="flex flex-col gap-6">
+            <!-- EMAIL -->
+            <div class="relative">
+              <input
+                id="username"
+                name="username"
+                type="username"
+                placeholder=" "
+                required
+                class="peer w-full h-[52px] px-4 pr-12 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+
+              <label
+                class="absolute left-4 top-0 -translate-y-1/2 bg-white px-1 text-xs text-gray-500 transition-all peer-placeholder-shown:top-1/2 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:text-sm peer-placeholder-shown:text-gray-400 peer-focus:top-0 peer-focus:-translate-y-1/2 peer-focus:text-xs peer-focus:text-blue-600"
+              >
+                Username
+              </label>
+
+              <i
+                class="fa-solid fa-circle-user absolute right-[-16px] top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none w-[50px]"
+              ></i>
+            </div>
+
+            <!-- PASSWORD -->
+            <div class="relative">
+              <input
+                name="password"
+                id="password"
+                type="password"
+                placeholder=" "
+                class="peer w-full h-12 px-4 rounded-xl border border-gray-300 bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 hover:white"
+              />
+
+              <label
+                class="absolute left-4 top-0 -translate-y-1/2 px-1 text-xs text-gray-500 transition-all peer-placeholder-shown:top-1/2 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:text-sm peer-placeholder-shown:text-gray-400 peer-focus:top-0 peer-focus:-translate-y-1/2 peer-focus:text-xs peer-focus:text-blue-600"
+              >
+                Password
+              </label>
+              <i
+                id="togglePassword"
+                class="fa-solid fa-eye absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer text-gray-400 hover:text-gray-600"
+              ></i>
+            </div>
+            <!-- SUBMIT -->
+            <button
+              type="submit"
+              class="mt-4 h-[52px] rounded-xl bg-red-600 text-white hover:bg-red-700 transition"
+            >
+              Send
+            </button>
+          </form>
+        </div>
+        <div class="flex items-center w-full my-6">
+          <span class="flex-1 h-px bg-gray-300"></span>
+
+          <span class="px-3 text-sm text-gray-400"> or sign up with </span>
+
+          <span class="flex-1 h-px bg-gray-300"></span>
+        </div>
+
+        <div class="flex gap-3">
+          <button
+            type="button"
+            class="w-[100px] h-12 bg-white border cursor-pointer border-gray-300 rounded-lg flex items-center justify-center hover:bg-green-500 transition"
+          >
+            <i class="fa-brands fa-linkedin text-blue-700 text-xl"></i>
+          </button>
+          <button
+            type="button"
+            class="w-[100px] h-12 bg-white cursor-pointer border border-gray-300 rounded-lg flex items-center justify-center hover:bg-green-500 transition"
+          >
+            <img
+              class="h-5"
+              src="./images/photo_2025-10-02_11-44-57.jpg"
+              alt="Google"
+            />
+          </button>
+          <button
+            type="button"
+            id="githubLoginBtn"
+            class="flex items-center cursor-pointer mb-[150px] justify-center gap-3 w-[100px] h-12 rounded-xl border border-gray-300 hover:bg-green-500 transition"
+          >
+            <i class="fa-brands fa-github text-xl"></i>
+          </button>
+        </div>
+        <div class="text-start">
+          <p class="mt-6 mb-3 text-center text-sm text-gray-400">
+            No account?
+            <a href="/signup.html" class="text-blue-600 hover:underline">
+              Register
+            </a>
+          </p>
+        </div>
+      </div>
+
+      <!-- RIGHT: BACKGROUND IMAGE -->
+      <div
+        class="hidden md:block md:w-1/2 bg-cover bg-center"
+        style="background-image: url(/images/6057555.webp)"
+      ></div>
+    </div>
+
+    <script type="module" src="/src/login.js"></script>
+  </body>
+</html>

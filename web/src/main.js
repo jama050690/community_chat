@@ -1,45 +1,39 @@
-import "@css/main.css"
-import { io } from "socket.io-client"
+import "@css/main.css";
+import { io } from "socket.io-client";
 
-let id = null
+let id = null;
 
-const server = io( "http://localhost:3000" )
+const server = io("http://localhost:3000");
 
-const typing = document.getElementById( "typing" )
-const messagesUL = document.getElementById( "messages" )
-const messageInput = document.getElementById( "message" )
+const typing = document.getElementById("typing");
+const messagesUL = document.getElementById("messages");
+const messageInput = document.getElementById("message");
 
-messageInput.onkeyup = event => {
+messageInput.onkeyup = (event) => {
+  if (event.code === "Enter") {
+    server.emit("NEW_MESSAGE", messageInput.value);
 
-	if ( event.code === "Enter" ) {
+    messageInput.value = null;
+  }
+};
 
-		server.emit( "NEW_MESSAGE", messageInput.value )
+messageInput.onkeydown = () => server.emit("TYPING");
 
-		messageInput.value = null
-	}
-}
+server.on("NEW_MESSAGE", (message) => {
+  const li = document.createElement("LI");
+  li.textContent = message;
 
-messageInput.onkeydown = () => server.emit( "TYPING" )
+  typing.textContent = null;
 
-server.on( "NEW_MESSAGE", message => {
+  messagesUL.appendChild(li);
+});
 
-	const li = document.createElement( "LI" )
-	li.textContent = message
+server.on("TYPING", () => {
+  typing.textContent = "Typing...";
 
-	typing.textContent = null
+  clearTimeout(id);
 
-	messagesUL.appendChild( li )
-} )
-
-server.on( "TYPING", () => {
-
-	typing.textContent = "Typing..."
-
-	clearTimeout( id )
-
-	id = setTimeout( () => {
-
-		typing.textContent = ""
-
-	}, 1_000 )
-} )
+  id = setTimeout(() => {
+    typing.textContent = "";
+  }, 1_000);
+});
