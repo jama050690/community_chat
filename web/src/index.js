@@ -38,7 +38,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   // =========================
   // SOCKET.IO CHAT
   // =========================
-  const server = io(import.meta.env.VITE_SOCKET_URL, {
+  const server = io("/", {
+    path: import.meta.env.VITE_SOCKET_PATH,
     withCredentials: true,
   });
 
