@@ -19,8 +19,8 @@ let typingTimeout = null;
 document.addEventListener("DOMContentLoaded", async () => {
   // LOGIN CHECK
   if (!user && !window.location.pathname.includes("login")) {
-    console.log("redirecting to: " + `${import.meta.env.BASE_URL}login`);
-    window.location.href = `${import.meta.env.BASE_URL}login`;
+    console.log("redirecting to: " + `${import.meta.env.BASE_URL}login.html`);
+    window.location.href = `${import.meta.env.BASE_URL}login.html`;
     return;
   }
 
@@ -32,7 +32,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   logoutBtn?.addEventListener("click", () => {
     localStorage.clear();
-    window.location.href = `${import.meta.env.BASE_URL}login`;
+    window.location.href = `${import.meta.env.BASE_URL}login.html`;
   });
 
   // =========================
@@ -43,7 +43,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     withCredentials: true,
   });
 
-  console.log(`test socket url: ${import.meta.env.VITE_SOCKET_URL}`);
+  console.log(`test socket url: ${import.meta.env.VITE_SOCKET_PATH}`);
 
   const sendMessage = () => {
     const msg = messageInput.value.trim();
