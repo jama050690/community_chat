@@ -30,9 +30,12 @@ const browsers = [];
 
 io.on("connection", (browser) => {
   browsers.push(browser);
+  console.log("foydalanuvchi ulandi");
 
   browser.on("NEW_MESSAGE", async (data) => {
     // Xabarni databasega saqlash
+    console.log(data.user + "dan xabar keldi: ", data.message);
+
     await pool.query(
       `INSERT INTO ${MESSAGES_TABLE} (username, message, avatar) VALUES ($1, $2, $3)`,
       [data.user, data.message, data.avatar],
