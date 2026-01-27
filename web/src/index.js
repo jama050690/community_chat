@@ -17,6 +17,7 @@ const BASE_URL = import.meta.env.VITE_BASE_URL; //host
 const BASE_PATH = import.meta.env.VITE_BASE_PATH; // portdan keyin url : production uchun muhim
 
 let typingTimeout = null;
+const onlineUsers = new Set(); // Online userlarni saqlash
 
 document.addEventListener("DOMContentLoaded", async () => {
   // LOGIN CHECK
@@ -46,6 +47,25 @@ document.addEventListener("DOMContentLoaded", async () => {
     withCredentials: true,
   });
   console.log(`test socket url: ${BASE_URL}${import.meta.env.VITE_SOCKET_URL}`);
+
+  // User online bo'lganini serverga xabar berish
+  server.on("connect", () => {
+    server.emit("USER_ONLINE", user);
+    onlineUsers.add(user); // O'zimizni ham qo'shamiz
+    renderOnlineUsers();
+  });
+
+  // Boshqa userlarning online/offline statusini kuzatish
+  server.on("USER_STATUS_CHANGED", (data) => {
+    console.log(`${data.username} ${data.online ? "online" : "offline"} bo'ldi`);
+
+    if (data.online) {
+      onlineUsers.add(data.username);
+    } else {
+      onlineUsers.delete(data.username);
+    }
+    renderOnlineUsers();
+  });
 
   const sendMessage = () => {
     const msg = messageInput.value.trim();
@@ -85,6 +105,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 
   fetchMessageHistory();
+  loadOwnerStatus();
+  fetchOnlineUsers();
 });
 
 /**
@@ -143,4 +165,101 @@ function fetchMessageHistory() {
       data.forEach((msg) => renderMsg(msg, msg.user));
     })
     .catch((err) => console.error(err));
+}
+// ================= ONLINE USERS =================
+
+// Serverdan online userlarni olish
+async function fetchOnlineUsers() {
+  try {
+    const res = await fetch(`${BASE_URL}/api/users/online`);
+    const users = await res.json();
+    users.forEach((username) => onlineUsers.add(username));
+    renderOnlineUsers();
+  } catch (err) {
+    console.error("Online userlarni olishda xato:", err);
+  }
+}
+
+// Online userlarni ekranga chiqarish
+function renderOnlineUsers() {
+  const container = document.getElementById("onlineUsers");
+  if (!container) return;
+
+  container.innerHTML = "";
+
+  if (onlineUsers.size === 0) {
+    container.innerHTML = '<span class="text-gray-400">Hech kim online emas</span>';
+    return;
+  }
+
+  onlineUsers.forEach((username) => {
+    const badge = document.createElement("span");
+    badge.className = `inline-flex items-center gap-1 px-2 py-1 rounded-full ${
+      username === user ? "bg-green-100 text-green-700" : "bg-indigo-100 text-indigo-700"
+    }`;
+    badge.innerHTML = `
+      <span class="w-2 h-2 bg-green-500 rounded-full"></span>
+      ${username}${username === user ? " (siz)" : ""}
+    `;
+    container.appendChild(badge);
+  });
+}
+
+// ================= STATUS =================
+
+// Vaqtni formatlash funksiyasi
+function formatTime(dateString) {
+  const date = new Date(dateString);
+  const now = new Date();
+  const diffMs = now - date;
+  const diffMins = Math.floor(diffMs / 60000);
+  const diffHours = Math.floor(diffMs / 3600000);
+  const diffDays = Math.floor(diffMs / 86400000);
+
+  if (diffMins < 1) return "hozirgina";
+  if (diffMins < 60) return `${diffMins} daqiqa oldin`;
+  if (diffHours < 24) return `${diffHours} soat oldin`;
+  if (diffDays < 7) return `${diffDays} kun oldin`;
+
+  return date.toLocaleDateString("uz-UZ");
+}
+
+// User statusini olish
+async function getUserStatus(username) {
+  try {
+    const res = await fetch(`${BASE_URL}/api/users/${username}/status`);
+    const data = await res.json();
+    return data;
+  } catch (err) {
+    console.error("Status olishda xato:", err);
+    return null;
+  }
+}
+
+// O'z statusini ko'rsatish
+async function loadOwnerStatus() {
+  const status = await getUserStatus(user);
+  const el = document.getElementById("ownerStatus");
+  if (el && status) {
+    el.textContent = status.online ? "online" : formatTime(status.lastOnlineTime);
+  }
+}
+
+// Boshqa user statusini ko'rsatish
+async function loadUserStatus(username) {
+  const el = document.getElementById("chatStatus");
+  if (!el) return;
+
+  try {
+    const status = await getUserStatus(username);
+
+    if (!status || !status.lastOnlineTime) {
+      el.textContent = "";
+      return;
+    }
+
+    el.textContent = status.online ? "online" : formatTime(status.lastOnlineTime);
+  } catch {
+    el.textContent = "";
+  }
 }

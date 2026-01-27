@@ -32,6 +32,20 @@ io.on("connection", (browser) => {
   browsers.push(browser);
   console.log("foydalanuvchi ulandi");
 
+  // User online bo'ldi
+  browser.on("USER_ONLINE", async (username) => {
+    browser.username = username; // socketga username saqlaymiz
+    await pool.query(
+      `UPDATE ${USER_TABLE} SET is_online = TRUE, last_seen = NOW() WHERE username = $1`,
+      [username]
+    );
+    // Hammaga xabar beramiz
+    for (const b of browsers) {
+      b.emit("USER_STATUS_CHANGED", { username, online: true });
+    }
+    console.log(`${username} online bo'ldi`);
+  });
+
   browser.on("NEW_MESSAGE", async (data) => {
     // Xabarni databasega saqlash
     console.log(data.user + "dan xabar keldi: ", data.message);
@@ -53,10 +67,23 @@ io.on("connection", (browser) => {
     }
   });
 
-  browser.on("disconnect", () => {
+  browser.on("disconnect", async () => {
     const index = browsers.indexOf(browser);
     if (index > -1) {
       browsers.splice(index, 1);
+    }
+
+    // User offline bo'ldi
+    if (browser.username) {
+      await pool.query(
+        `UPDATE ${USER_TABLE} SET is_online = FALSE, last_seen = NOW() WHERE username = $1`,
+        [browser.username]
+      );
+      // Hammaga xabar beramiz
+      for (const b of browsers) {
+        b.emit("USER_STATUS_CHANGED", { username: browser.username, online: false });
+      }
+      console.log(`${browser.username} offline bo'ldi`);
     }
   });
 });
@@ -131,6 +158,13 @@ async function initDb() {
   await pool.query(`
     ALTER TABLE ${USER_TABLE} ADD COLUMN IF NOT EXISTS avatar TEXT;
   `);
+  // Add online status columns
+  await pool.query(`
+    ALTER TABLE ${USER_TABLE} ADD COLUMN IF NOT EXISTS is_online BOOLEAN DEFAULT FALSE;
+  `);
+  await pool.query(`
+    ALTER TABLE ${USER_TABLE} ADD COLUMN IF NOT EXISTS last_seen TIMESTAMP DEFAULT NOW();
+  `);
   console.log(`${new Date().toISOString()} Database ishga tushirildi`);
 }
 initDb();
@@ -141,6 +175,42 @@ app.get("/api/messages", async (req, res) => {
     `SELECT * FROM ${MESSAGES_TABLE} ORDER BY created_at ASC`,
   );
   res.json(rows);
+});
+
+// Barcha online userlarni olish
+app.get("/api/users/online", async (req, res) => {
+  try {
+    const result = await pool.query(
+      `SELECT username FROM ${USER_TABLE} WHERE is_online = TRUE`
+    );
+    const onlineUsers = result.rows.map((row) => row.username);
+    res.json(onlineUsers);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server xatosi" });
+  }
+});
+
+// User status olish
+app.get("/api/users/:username/status", async (req, res) => {
+  const { username } = req.params;
+  try {
+    const result = await pool.query(
+      `SELECT is_online, last_seen FROM ${USER_TABLE} WHERE username = $1`,
+      [username]
+    );
+    if (result.rowCount === 0) {
+      return res.status(404).json({ message: "User topilmadi" });
+    }
+    const user = result.rows[0];
+    res.json({
+      online: user.is_online,
+      lastOnlineTime: user.last_seen,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server xatosi" });
+  }
 });
 const MESSAGES_TABLE = "messages";
 
@@ -229,6 +299,12 @@ app.post("/api/login", upload.single("profilePic"), async (req, res) => {
     },
     process.env.JWT_SECRET,
     { expiresIn: "1h" },
+  );
+
+  // user online bo'ldi - databasega yozish
+  await pool.query(
+    `UPDATE ${USER_TABLE} SET is_online = TRUE, last_seen = NOW() WHERE id = $1`,
+    [user.id]
   );
 
   res.cookie("access_token", token, { httpOnly: true, sameSite: "lax" });
