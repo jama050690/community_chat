@@ -1,5 +1,5 @@
 import "./style.css";
-
+const BASE_URL = "/api/com_chat";
 document.addEventListener("DOMContentLoaded", () => {
   const form = document.getElementById("signupForm");
   const togglePassword = document.getElementById("togglePassword");
@@ -53,7 +53,7 @@ document.addEventListener("DOMContentLoaded", () => {
     data.gender = data.gender == "male";
 
     try {
-      const res = await fetch("http://localhost:3000/api/signup", {
+      const res = await fetch(`${BASE_URL}/api/signup`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

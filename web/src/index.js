@@ -12,7 +12,7 @@ const messagesUL = document.getElementById("messages");
 const messageInput = document.getElementById("message");
 const sendBtn = document.getElementById("sendBtn");
 
-const BASE_API = "http://localhost:3000";
+const BASE_API = "/api/com_chat";
 
 let typingTimeout = null;
 

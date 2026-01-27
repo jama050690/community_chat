@@ -4,7 +4,7 @@ const password = document.getElementById("password");
 const toggle = document.getElementById("togglePassword");
 const avatarIconElement = document.getElementById("avatarIcon");
 const profilePicInput = document.getElementById("profilePic");
-
+const BASE_URL = "/api/com_chat";
 // Rasmni preview qilish va localStorage ga saqlash
 if (profilePicInput && avatar && avatarIconElement) {
   profilePicInput.addEventListener("change", (e) => {
@@ -65,7 +65,7 @@ form.addEventListener("submit", async (e) => {
   }
 
   try {
-    const res = await fetch("http://localhost:3000/api/login", {
+    const res = await fetch(`${BASE_URL}/api/login`, {
       method: "POST",
       credentials: "include",
       body: formData,
@@ -81,7 +81,7 @@ form.addEventListener("submit", async (e) => {
     // kerakli local storage o'zgaruvchilarni / foydalanuvchi ma`lumotlarni saqlash
     localStorage.setItem("app_user", data.user.username);
     if (data.user.avatar && data.user.avatar !== "null") {
-      localStorage.setItem("app_avatar", `http://localhost:3000${data.user.avatar}`);
+      localStorage.setItem("app_avatar", `${BASE_URL}${data.user.avatar}`);
     } else {
       localStorage.removeItem("app_avatar");
     }
