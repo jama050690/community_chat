@@ -12,7 +12,7 @@ import { createServer } from "http";
 
 dotenv.config();
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3001;
 /* =======================
    HTTP SERVER & SOCKET.IO
 ======================= */
