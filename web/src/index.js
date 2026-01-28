@@ -56,13 +56,13 @@ document.addEventListener("DOMContentLoaded", async () => {
     onlineUsers.add(user); // O'zimizni ham qo'shamiz
     console.log("Online users:", Array.from(onlineUsers));
     renderOnlineUsers();
-    updateMyStatus(true); // Online statusni yangilash
+    // updateMyStatus(true); // Online statusni yangilash
   });
 
   // Socket uzilganda
   server.on("disconnect", () => {
     console.log("Socket uzildi!");
-    updateMyStatus(false); // Offline statusni yangilash
+    // updateMyStatus(false); // Offline statusni yangilash
   });
 
   // Serverdan hozirgi online userlar ro'yxatini olish
@@ -151,10 +151,12 @@ function renderMsg(msg) {
   }`;
 
   const username = document.createElement("p");
-  username.className = `text-xs font-medium mb-1 ${isOwnMessage ? "text-indigo-200" : "text-indigo-600"}`;
+  username.className = `
+  text-xs mb-1 italic font-bold ${isOwnMessage ? "text-indigo-200" : "text-indigo-600"}
+`;
   username.textContent = msg.username;
 
-  const created = msg.createdAt || msg.created_at; // <-- Hozir to'g'ri
+  const created = msg.createdAt || msg.created_at;
   const time = created
     ? new Date(created).toLocaleTimeString("uz-UZ", {
         hour: "2-digit",
@@ -187,18 +189,18 @@ function fetchMessageHistory() {
       let date = null;
 
       const months = [
-        "yanvar",
-        "fevral",
-        "mart",
-        "aprel",
-        "may",
-        "iyun",
-        "iyul",
-        "avgust",
-        "sentabr",
-        "oktabr",
-        "noyabr",
-        "dekabr",
+        "Yanvar",
+        "Fevral",
+        "Mart",
+        "Aprel",
+        "May",
+        "Iyun",
+        "Iyul",
+        "Avgust",
+        "Sentabr",
+        "Oktabr",
+        "Noyabr",
+        "Dekabr",
       ];
 
       data.forEach((msg) => {
@@ -210,8 +212,9 @@ function fetchMessageHistory() {
 
           const d = new Date(created);
           const dateP = document.createElement("p");
-          dateP.className = "text-center text-xs text-gray-400 my-2";
-          dateP.textContent = `${d.getDate()} ${months[d.getMonth()]}`;
+          dateP.className =
+            "text-xs text-black my-2 rounded-2xl bg-gray-300 px-6 py-3 text-center block w-max mx-auto";
+          dateP.textContent = ` ${months[d.getMonth()]} ${d.getDate()}`;
 
           messagesUL.appendChild(dateP);
         }
@@ -256,17 +259,12 @@ function renderOnlineUsers() {
   }
 
   onlineUsers.forEach((username) => {
-    const badge = document.createElement("span");
-    badge.className = `inline-flex items-center gap-1 px-2 py-1 rounded-full ${
-      username === user
-        ? "bg-green-100 text-green-700"
-        : "bg-indigo-100 text-indigo-700"
-    }`;
-    badge.innerHTML = `
-      <span class="w-2 h-2 bg-green-500 rounded-full"></span>
-      ${username}${username === user ? " (siz)" : ""}
-    `;
-    container.appendChild(badge);
+    if (username !== user) {
+      const badge = document.createElement("span");
+      badge.className = `inline-flex items-center gap-1 px-2 py-1 rounded-full bg-indigo-100 text-indigo-700`;
+      badge.innerHTML = `<span class="w-2 h-2 bg-green-500 rounded-full"></span>${username}`;
+      container.appendChild(badge);
+    }
   });
 }
 

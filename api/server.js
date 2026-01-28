@@ -27,7 +27,7 @@ const io = new Server(httpServer, {
 });
 
 const browsers = [];
-const onlineUsers = new Map(); 
+const onlineUsers = new Map();
 io.on("connection", (browser) => {
   browsers.push(browser);
   console.log("foydalanuvchi ulandi");
@@ -41,6 +41,8 @@ io.on("connection", (browser) => {
     // Hozirgi online userlar ro'yxatini yangi ulangan userga yuborish
     browser.emit("ONLINE_USERS_LIST", Array.from(onlineUsers.values()));
 
+
+    
     // Boshqa barcha userlarga bu user online bo'lganini xabar berish
     for (const b of browsers) {
       if (b.id !== browser.id) {
@@ -83,7 +85,10 @@ io.on("connection", (browser) => {
       onlineUsers.delete(browser.id);
 
       for (const b of browsers) {
-        b.emit("USER_STATUS_CHANGED", { username: userData.username, online: false });
+        b.emit("USER_STATUS_CHANGED", {
+          username: userData.username,
+          online: false,
+        });
       }
     }
   });
