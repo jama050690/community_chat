@@ -21,29 +21,33 @@ const httpServer = createServer(app);
 
 const io = new Server(httpServer, {
   cors: {
-    origin: "http://localhost:3002",
+    origin: "*",
     credentials: true,
   },
 });
 
 const browsers = [];
+const onlineUsers = new Map(); // { visitorId: { username, visitorId } }
 
 io.on("connection", (browser) => {
   browsers.push(browser);
   console.log("foydalanuvchi ulandi");
 
-  // User online bo'ldi
-  browser.on("USER_ONLINE", async (username) => {
-    browser.username = username; // socketga username saqlaymiz
-    await pool.query(
-      `UPDATE ${USER_TABLE} SET is_online = TRUE, last_seen = NOW() WHERE username = $1`,
-      [username]
-    );
-    // Hammaga xabar beramiz
-    for (const b of browsers) {
-      b.emit("USER_STATUS_CHANGED", { username, online: true });
-    }
+  // User online bo'lganini qabul qilish
+  browser.on("USER_ONLINE", (username) => {
+    browser.username = username; // socketga username biriktirish
+    onlineUsers.set(browser.id, { username, visitorId: browser.id });
     console.log(`${username} online bo'ldi`);
+
+    // Hozirgi online userlar ro'yxatini yangi ulangan userga yuborish
+    browser.emit("ONLINE_USERS_LIST", Array.from(onlineUsers.values()));
+
+    // Boshqa barcha userlarga bu user online bo'lganini xabar berish
+    for (const b of browsers) {
+      if (b.id !== browser.id) {
+        b.emit("USER_STATUS_CHANGED", { username, online: true });
+      }
+    }
   });
 
   browser.on("NEW_MESSAGE", async (data) => {
@@ -67,23 +71,21 @@ io.on("connection", (browser) => {
     }
   });
 
-  browser.on("disconnect", async () => {
+  browser.on("disconnect", () => {
     const index = browsers.indexOf(browser);
     if (index > -1) {
       browsers.splice(index, 1);
     }
 
-    // User offline bo'ldi
-    if (browser.username) {
-      await pool.query(
-        `UPDATE ${USER_TABLE} SET is_online = FALSE, last_seen = NOW() WHERE username = $1`,
-        [browser.username]
-      );
-      // Hammaga xabar beramiz
+    // User offline bo'lganini boshqalarga xabar berish
+    const userData = onlineUsers.get(browser.id);
+    if (userData) {
+      console.log(`${userData.username} offline bo'ldi`);
+      onlineUsers.delete(browser.id);
+
       for (const b of browsers) {
-        b.emit("USER_STATUS_CHANGED", { username: browser.username, online: false });
+        b.emit("USER_STATUS_CHANGED", { username: userData.username, online: false });
       }
-      console.log(`${browser.username} offline bo'ldi`);
     }
   });
 });
@@ -158,13 +160,6 @@ async function initDb() {
   await pool.query(`
     ALTER TABLE ${USER_TABLE} ADD COLUMN IF NOT EXISTS avatar TEXT;
   `);
-  // Add online status columns
-  await pool.query(`
-    ALTER TABLE ${USER_TABLE} ADD COLUMN IF NOT EXISTS is_online BOOLEAN DEFAULT FALSE;
-  `);
-  await pool.query(`
-    ALTER TABLE ${USER_TABLE} ADD COLUMN IF NOT EXISTS last_seen TIMESTAMP DEFAULT NOW();
-  `);
   console.log(`${new Date().toISOString()} Database ishga tushirildi`);
 }
 initDb();
@@ -175,42 +170,6 @@ app.get("/api/messages", async (req, res) => {
     `SELECT * FROM ${MESSAGES_TABLE} ORDER BY created_at ASC`,
   );
   res.json(rows);
-});
-
-// Barcha online userlarni olish
-app.get("/api/users/online", async (req, res) => {
-  try {
-    const result = await pool.query(
-      `SELECT username FROM ${USER_TABLE} WHERE is_online = TRUE`
-    );
-    const onlineUsers = result.rows.map((row) => row.username);
-    res.json(onlineUsers);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Server xatosi" });
-  }
-});
-
-// User status olish
-app.get("/api/users/:username/status", async (req, res) => {
-  const { username } = req.params;
-  try {
-    const result = await pool.query(
-      `SELECT is_online, last_seen FROM ${USER_TABLE} WHERE username = $1`,
-      [username]
-    );
-    if (result.rowCount === 0) {
-      return res.status(404).json({ message: "User topilmadi" });
-    }
-    const user = result.rows[0];
-    res.json({
-      online: user.is_online,
-      lastOnlineTime: user.last_seen,
-    });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Server xatosi" });
-  }
 });
 const MESSAGES_TABLE = "messages";
 
@@ -299,12 +258,6 @@ app.post("/api/login", upload.single("profilePic"), async (req, res) => {
     },
     process.env.JWT_SECRET,
     { expiresIn: "1h" },
-  );
-
-  // user online bo'ldi - databasega yozish
-  await pool.query(
-    `UPDATE ${USER_TABLE} SET is_online = TRUE, last_seen = NOW() WHERE id = $1`,
-    [user.id]
   );
 
   res.cookie("access_token", token, { httpOnly: true, sameSite: "lax" });

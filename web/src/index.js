@@ -16,8 +16,9 @@ const sendBtn = document.getElementById("sendBtn");
 const BASE_URL = import.meta.env.VITE_BASE_URL; //host
 const BASE_PATH = import.meta.env.VITE_BASE_PATH; // portdan keyin url : production uchun muhim
 
-let typingTimeout = null;
-const onlineUsers = new Set(); // Online userlarni saqlash
+// Online userlarni saqlash uchun Set
+const onlineUsers = new Set();
+let typingTimeout;
 
 document.addEventListener("DOMContentLoaded", async () => {
   // LOGIN CHECK
@@ -44,20 +45,37 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   const server = io(import.meta.env.VITE_BASE_URL, {
     path: import.meta.env.VITE_SOCKET_URL,
-    withCredentials: true,
+    // withCredentials: true,
   });
   console.log(`test socket url: ${BASE_URL}${import.meta.env.VITE_SOCKET_URL}`);
 
   // User online bo'lganini serverga xabar berish
   server.on("connect", () => {
+    console.log("Socket ulandi! User:", user);
     server.emit("USER_ONLINE", user);
     onlineUsers.add(user); // O'zimizni ham qo'shamiz
+    console.log("Online users:", Array.from(onlineUsers));
+    renderOnlineUsers();
+    updateMyStatus(true); // Online statusni yangilash
+  });
+
+  // Socket uzilganda
+  server.on("disconnect", () => {
+    console.log("Socket uzildi!");
+    updateMyStatus(false); // Offline statusni yangilash
+  });
+
+  // Serverdan hozirgi online userlar ro'yxatini olish
+  server.on("ONLINE_USERS_LIST", (users) => {
+    users.forEach((u) => onlineUsers.add(u.username));
     renderOnlineUsers();
   });
 
   // Boshqa userlarning online/offline statusini kuzatish
   server.on("USER_STATUS_CHANGED", (data) => {
-    console.log(`${data.username} ${data.online ? "online" : "offline"} bo'ldi`);
+    console.log(
+      `${data.username} ${data.online ? "online" : "offline"} bo'ldi`,
+    );
 
     if (data.online) {
       onlineUsers.add(data.username);
@@ -105,8 +123,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 
   fetchMessageHistory();
-  loadOwnerStatus();
-  fetchOnlineUsers();
+  //   loadOwnerStatus();
 });
 
 /**
@@ -122,12 +139,10 @@ function renderMsg(msg) {
   const bubbleWrapper = document.createElement("div");
   bubbleWrapper.className = `flex items-end gap-2 max-w-[80%] ${isOwnMessage ? "flex-row-reverse" : ""}`;
 
-  // Avatar
   const avatarImg = document.createElement("img");
   avatarImg.src = msg.avatar || "/images/no_profile_picture.webp";
   avatarImg.className = "w-8 h-8 rounded-full object-cover flex-shrink-0";
 
-  // Message bubble
   const bubble = document.createElement("div");
   bubble.className = `px-4 py-2 rounded-2xl ${
     isOwnMessage
@@ -135,15 +150,21 @@ function renderMsg(msg) {
       : "bg-white text-gray-800 shadow-md rounded-bl-md"
   }`;
 
-  // Username
   const username = document.createElement("p");
   username.className = `text-xs font-medium mb-1 ${isOwnMessage ? "text-indigo-200" : "text-indigo-600"}`;
   username.textContent = msg.username;
 
-  // Message text
+  const created = msg.createdAt || msg.created_at; // <-- Hozir to'g'ri
+  const time = created
+    ? new Date(created).toLocaleTimeString("uz-UZ", {
+        hour: "2-digit",
+        minute: "2-digit",
+      })
+    : "";
+
   const text = document.createElement("p");
   text.className = "text-sm";
-  text.textContent = msg.message;
+  text.textContent = `${msg.message} · ${time}`;
 
   bubble.appendChild(username);
   bubble.appendChild(text);
@@ -156,46 +177,90 @@ function renderMsg(msg) {
   messagesUL.scrollTop = messagesUL.scrollHeight;
 }
 
+// message time
 function fetchMessageHistory() {
-  // messagesUL
-  const messages = fetch(`${BASE_URL}/api/messages`)
+  fetch(`${BASE_URL}/api/messages`)
     .then((res) => res.json())
     .then((data) => {
-      console.log(data);
-      data.forEach((msg) => renderMsg(msg, msg.user));
+      console.log("FIRST MESSAGE:", data[0]);
+
+      let date = null;
+
+      const months = [
+        "yanvar",
+        "fevral",
+        "mart",
+        "aprel",
+        "may",
+        "iyun",
+        "iyul",
+        "avgust",
+        "sentabr",
+        "oktabr",
+        "noyabr",
+        "dekabr",
+      ];
+
+      data.forEach((msg) => {
+        const created = msg.createdAt || msg.created_at;
+        const msgDate = new Date(created).toDateString();
+
+        if (date !== msgDate) {
+          date = msgDate;
+
+          const d = new Date(created);
+          const dateP = document.createElement("p");
+          dateP.className = "text-center text-xs text-gray-400 my-2";
+          dateP.textContent = `${d.getDate()} ${months[d.getMonth()]}`;
+
+          messagesUL.appendChild(dateP);
+        }
+
+        renderMsg(msg);
+      });
     })
-    .catch((err) => console.error(err));
+    .catch(console.error);
 }
+
 // ================= ONLINE USERS =================
 
-// Serverdan online userlarni olish
-async function fetchOnlineUsers() {
-  try {
-    const res = await fetch(`${BASE_URL}/api/users/online`);
-    const users = await res.json();
-    users.forEach((username) => onlineUsers.add(username));
-    renderOnlineUsers();
-  } catch (err) {
-    console.error("Online userlarni olishda xato:", err);
+// O'z statusini yangilash (header da)
+function updateMyStatus(isOnline) {
+  const statusEl = document.getElementById("myStatus");
+  if (statusEl) {
+    if (isOnline) {
+      statusEl.textContent = "• online";
+      statusEl.className = "text-green-300 text-xs ml-1";
+    } else {
+      statusEl.textContent = "• offline";
+      statusEl.className = "text-red-300 text-xs ml-1";
+    }
   }
 }
 
 // Online userlarni ekranga chiqarish
 function renderOnlineUsers() {
+  console.log("renderOnlineUsers chaqirildi, size:", onlineUsers.size);
   const container = document.getElementById("onlineUsers");
-  if (!container) return;
+  if (!container) {
+    console.log("onlineUsers container topilmadi!");
+    return;
+  }
 
   container.innerHTML = "";
 
   if (onlineUsers.size === 0) {
-    container.innerHTML = '<span class="text-gray-400">Hech kim online emas</span>';
+    container.innerHTML =
+      '<span class="text-gray-400">Hech kim online emas</span>';
     return;
   }
 
   onlineUsers.forEach((username) => {
     const badge = document.createElement("span");
     badge.className = `inline-flex items-center gap-1 px-2 py-1 rounded-full ${
-      username === user ? "bg-green-100 text-green-700" : "bg-indigo-100 text-indigo-700"
+      username === user
+        ? "bg-green-100 text-green-700"
+        : "bg-indigo-100 text-indigo-700"
     }`;
     badge.innerHTML = `
       <span class="w-2 h-2 bg-green-500 rounded-full"></span>
@@ -241,7 +306,9 @@ async function loadOwnerStatus() {
   const status = await getUserStatus(user);
   const el = document.getElementById("ownerStatus");
   if (el && status) {
-    el.textContent = status.online ? "online" : formatTime(status.lastOnlineTime);
+    el.textContent = status.online
+      ? "online"
+      : formatTime(status.lastOnlineTime);
   }
 }
 
@@ -258,7 +325,9 @@ async function loadUserStatus(username) {
       return;
     }
 
-    el.textContent = status.online ? "online" : formatTime(status.lastOnlineTime);
+    el.textContent = status.online
+      ? "online"
+      : formatTime(status.lastOnlineTime);
   } catch {
     el.textContent = "";
   }
