@@ -56,13 +56,13 @@ document.addEventListener("DOMContentLoaded", async () => {
     onlineUsers.add(user); // O'zimizni ham qo'shamiz
     console.log("Online users:", Array.from(onlineUsers));
     renderOnlineUsers();
-    // updateMyStatus(true); // Online statusni yangilash
+    updateMyStatus(true); // Online statusni yangilash
   });
 
   // Socket uzilganda
   server.on("disconnect", () => {
     console.log("Socket uzildi!");
-    // updateMyStatus(false); // Offline statusni yangilash
+    updateMyStatus(false); // Offline statusni yangilash
   });
 
   // Serverdan hozirgi online userlar ro'yxatini olish
@@ -151,12 +151,10 @@ function renderMsg(msg) {
   }`;
 
   const username = document.createElement("p");
-  username.className = `
-  text-xs mb-1 italic font-bold text-black ${isOwnMessage ? "text-indigo-200" : "text-indigo-600"}
-`;
+  username.className = `text-xs font-medium mb-1 ${isOwnMessage ? "text-indigo-200" : "text-indigo-600"}`;
   username.textContent = msg.username;
 
-  const created = msg.createdAt || msg.created_at;
+  const created = msg.createdAt || msg.created_at; // <-- Hozir to'g'ri
   const time = created
     ? new Date(created).toLocaleTimeString("uz-UZ", {
         hour: "2-digit",
@@ -166,7 +164,7 @@ function renderMsg(msg) {
 
   const text = document.createElement("p");
   text.className = "text-sm";
-  text.textContent = `${msg.message}  ${time}`;
+  text.textContent = `${msg.message} · ${time}`;
 
   bubble.appendChild(username);
   bubble.appendChild(text);
@@ -192,7 +190,7 @@ function fetchMessageHistory() {
         "Yanvar",
         "Fevral",
         "Mart",
-        "Aprel",
+        "Mprel",
         "May",
         "Iyun",
         "Iyul",
@@ -213,8 +211,8 @@ function fetchMessageHistory() {
           const d = new Date(created);
           const dateP = document.createElement("p");
           dateP.className =
-            "text-xs text-black my-2 rounded-2xl bg-gray-300 px-6 py-3 text-center block w-max mx-auto";
-          dateP.textContent = `${months[d.getMonth()]} ${d.getDate()}`;
+            "text-center text-xs text-black my-2 rounded-2xl bg-grey-300";
+          dateP.textContent = ` ${months[d.getMonth()]} ${d.getDate()}`;
 
           messagesUL.appendChild(dateP);
         }
@@ -259,12 +257,17 @@ function renderOnlineUsers() {
   }
 
   onlineUsers.forEach((username) => {
-    if (username !== user) {
-      const badge = document.createElement("span");
-      badge.className = `inline-flex items-center gap-1 px-2 py-1 rounded-full bg-indigo-100 text-indigo-700`;
-      badge.innerHTML = `<span class="w-2 h-2 bg-green-500 rounded-full"></span>${username}`;
-      container.appendChild(badge);
-    }
+    const badge = document.createElement("span");
+    badge.className = `inline-flex items-center gap-1 px-2 py-1 rounded-full ${
+      username === user
+        ? "bg-green-100 text-green-700"
+        : "bg-indigo-100 text-indigo-700"
+    }`;
+    badge.innerHTML = `
+      <span class="w-2 h-2 bg-green-500 rounded-full"></span>
+      ${username}${username === user ? " (siz)" : ""}
+    `;
+    container.appendChild(badge);
   });
 }
 

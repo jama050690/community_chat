@@ -27,29 +27,10 @@ const io = new Server(httpServer, {
 });
 
 const browsers = [];
-const onlineUsers = new Map();
+
 io.on("connection", (browser) => {
   browsers.push(browser);
   console.log("foydalanuvchi ulandi");
-
-  // User online bo'lganini qabul qilish
-  browser.on("USER_ONLINE", (username) => {
-    browser.username = username; // socketga username biriktirish
-    onlineUsers.set(browser.id, { username, visitorId: browser.id });
-    console.log(`${username} online bo'ldi`);
-
-    // Hozirgi online userlar ro'yxatini yangi ulangan userga yuborish
-    browser.emit("ONLINE_USERS_LIST", Array.from(onlineUsers.values()));
-
-
-    
-    // Boshqa barcha userlarga bu user online bo'lganini xabar berish
-    for (const b of browsers) {
-      if (b.id !== browser.id) {
-        b.emit("USER_STATUS_CHANGED", { username, online: true });
-      }
-    }
-  });
 
   browser.on("NEW_MESSAGE", async (data) => {
     // Xabarni databasega saqlash
@@ -76,20 +57,6 @@ io.on("connection", (browser) => {
     const index = browsers.indexOf(browser);
     if (index > -1) {
       browsers.splice(index, 1);
-    }
-
-    // User offline bo'lganini boshqalarga xabar berish
-    const userData = onlineUsers.get(browser.id);
-    if (userData) {
-      console.log(`${userData.username} offline bo'ldi`);
-      onlineUsers.delete(browser.id);
-
-      for (const b of browsers) {
-        b.emit("USER_STATUS_CHANGED", {
-          username: userData.username,
-          online: false,
-        });
-      }
     }
   });
 });
