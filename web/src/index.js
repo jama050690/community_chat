@@ -154,7 +154,7 @@ function renderMsg(msg) {
   username.className = `text-xs font-medium mb-1 ${isOwnMessage ? "text-indigo-200" : "text-indigo-600"}`;
   username.textContent = msg.username;
 
-  const created = msg.createdAt || msg.created_at; // <-- Hozir to'g'ri
+  const created = msg.createdAt || msg.created_at;
   const time = created
     ? new Date(created).toLocaleTimeString("uz-UZ", {
         hour: "2-digit",
@@ -164,7 +164,7 @@ function renderMsg(msg) {
 
   const text = document.createElement("p");
   text.className = "text-sm";
-  text.textContent = `${msg.message} · ${time}`;
+  text.textContent = `${msg.message} ${time}`;
 
   bubble.appendChild(username);
   bubble.appendChild(text);
@@ -212,7 +212,7 @@ function fetchMessageHistory() {
           const dateP = document.createElement("p");
           dateP.className =
             "text-center text-xs text-black my-2 rounded-2xl bg-grey-300";
-          dateP.textContent = ` ${months[d.getMonth()]} ${d.getDate()}`;
+          dateP.textContent = `${months[d.getMonth()]} ${d.getDate()}`;
 
           messagesUL.appendChild(dateP);
         }
