@@ -182,7 +182,7 @@ function fetchMessageHistory() {
   fetch(`${BASE_URL}/api/messages`)
     .then((res) => res.json())
     .then((data) => {
-      console.log("FIRST MESSAGE:", data[0]);
+      // console.log("FIRST MESSAGE:", data[0]);
 
       let date = null;
 

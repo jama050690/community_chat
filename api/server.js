@@ -27,8 +27,7 @@ const io = new Server(httpServer, {
 });
 
 const browsers = [];
-const onlineUsers = new Map(); // { visitorId: { username, visitorId } }
-
+const onlineUsers = new Map(); 
 io.on("connection", (browser) => {
   browsers.push(browser);
   console.log("foydalanuvchi ulandi");
